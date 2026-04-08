@@ -6,10 +6,11 @@ from app.environment import EmailEnv
 from app.models import EmailAction
 
 
-# Required env variables
 API_BASE_URL = os.getenv("API_BASE_URL", "http://localhost:8000/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "dummy-model")
-API_KEY = os.getenv("OPENAI_API_KEY", "dummy-key")
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+API_KEY = HF_TOKEN or os.getenv("OPENAI_API_KEY")
 
 MAX_STEPS = 10
 
