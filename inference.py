@@ -17,7 +17,7 @@ MAX_STEPS = 10
 BENCHMARK = "email-env"
 
 
-# ✅ SAFETY CLAMP (CRITICAL FIX)
+# ✅ SAFETY CLAMP (CRITICAL FOR PHASE 2)
 def safe_score(x: float) -> float:
     eps = 1e-6
     return max(eps, min(1 - eps, x))
@@ -103,7 +103,7 @@ def run_task(client: OpenAI, task_id: str):
                 EmailAction(label=action_label)
             )
 
-            # ✅ clamp each reward BEFORE logging/storing
+            # ✅ clamp each reward BEFORE logging
             safe = safe_score(reward.score)
 
             rewards.append(safe)
@@ -134,3 +134,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
