@@ -6,8 +6,12 @@ authors = [{name = "Chiranthan"}]
 dependencies = [
     "fastapi",
     "uvicorn",
-    "pydantic"
+    "pydantic",
+    "openenv-core>=0.2.0"
 ]
+
+[project.scripts]
+server = "server:app"
 
 [build-system]
 requires = ["setuptools", "wheel"]
