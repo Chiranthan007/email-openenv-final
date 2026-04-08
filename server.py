@@ -7,10 +7,11 @@ from app.models import EmailAction
 
 app = FastAPI()
 
-env = EmailEnv()
+# Keep env global but initialize later
+env = None
 
 
-# ✅ Make task_id OPTIONAL
+# Request models
 class ResetRequest(BaseModel):
     task_id: Optional[str] = "easy"
 
@@ -19,12 +20,20 @@ class StepRequest(BaseModel):
     action: str
 
 
+# Root route (prevents 404 at "/")
+@app.get("/")
+def home():
+    return {"message": "Email Env API is running"}
+
+
+# Reset endpoint
 @app.post("/reset")
 def reset(req: ResetRequest = ResetRequest()):
+    global env
     try:
-        # fallback if empty request
-        task_id = req.task_id or "easy"
+        env = EmailEnv()  # initialize here safely
 
+        task_id = req.task_id or "easy"
         obs = env.reset(task_id)
 
         return {
@@ -33,16 +42,15 @@ def reset(req: ResetRequest = ResetRequest()):
         }
 
     except Exception as e:
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
 
 
+# Step endpoint
 @app.post("/step")
 def step(req: StepRequest):
+    global env
     try:
-        # prevent step before reset
-        if env.task is None:
+        if env is None or env.task is None:
             return {"error": "Call /reset first"}
 
         obs, reward, done, _ = env.step(
@@ -57,6 +65,4 @@ def step(req: StepRequest):
         }
 
     except Exception as e:
-        return {
-            "error": str(e)
-        }
+        return {"error": str(e)}
