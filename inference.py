@@ -17,6 +17,12 @@ MAX_STEPS = 10
 BENCHMARK = "email-env"
 
 
+# ✅ SAFETY CLAMP (CRITICAL FIX)
+def safe_score(x: float) -> float:
+    eps = 1e-6
+    return max(eps, min(1 - eps, x))
+
+
 # ✅ REQUIRED LOG FORMAT
 
 def log_start(task: str):
@@ -32,7 +38,10 @@ def log_step(step: int, action: str, reward: float, done: bool):
 
 def log_end(task: str, success: bool, rewards: List[float]):
     steps = len(rewards)
-    score = sum(rewards) / steps if steps > 0 else 0.0
+
+    raw_score = sum(rewards) / steps if steps > 0 else 0.0
+    score = safe_score(raw_score)  # ✅ clamp final score
+
     rewards_str = ",".join([f"{r:.2f}" for r in rewards])
 
     print(
@@ -94,9 +103,12 @@ def run_task(client: OpenAI, task_id: str):
                 EmailAction(label=action_label)
             )
 
-            rewards.append(reward.score)
+            # ✅ clamp each reward BEFORE logging/storing
+            safe = safe_score(reward.score)
 
-            log_step(step, action_label, reward.score, done)
+            rewards.append(safe)
+
+            log_step(step, action_label, safe, done)
 
             if done:
                 break
