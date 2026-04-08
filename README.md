@@ -1,3 +1,12 @@
+---
+title: Email OpenEnv Environment
+emoji: 📧
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # 📧 Email Classification OpenEnv Environment
 
 ## 🧠 Overview
