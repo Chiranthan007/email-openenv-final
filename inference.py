@@ -17,13 +17,9 @@ MAX_STEPS = 10
 BENCHMARK = "email-env"
 
 
-# ✅ SAFETY CLAMP (CRITICAL FOR PHASE 2)
 def safe_score(x: float) -> float:
-    eps = 1e-6
-    return max(eps, min(1 - eps, x))
+    return max(0.01, min(0.99, x))
 
-
-# ✅ REQUIRED LOG FORMAT
 
 def log_start(task: str):
     print(f"[START] task={task} env={BENCHMARK} model={MODEL_NAME}")
@@ -38,9 +34,8 @@ def log_step(step: int, action: str, reward: float, done: bool):
 
 def log_end(task: str, success: bool, rewards: List[float]):
     steps = len(rewards)
-
     raw_score = sum(rewards) / steps if steps > 0 else 0.0
-    score = safe_score(raw_score)  # ✅ clamp final score
+    score = safe_score(raw_score)
 
     rewards_str = ",".join([f"{r:.2f}" for r in rewards])
 
@@ -49,8 +44,6 @@ def log_end(task: str, success: bool, rewards: List[float]):
         f"score={score:.2f} rewards={rewards_str}"
     )
 
-
-# ✅ MODEL CALL (WITH FALLBACK)
 
 def get_model_prediction(client: OpenAI, email: str) -> str:
     try:
@@ -74,14 +67,11 @@ def get_model_prediction(client: OpenAI, email: str) -> str:
         return "not_spam"
 
     except Exception:
-        # fallback logic (IMPORTANT for offline validation)
         email_lower = email.lower()
         if any(word in email_lower for word in ["win", "free", "offer", "discount", "claim"]):
             return "spam"
         return "not_spam"
 
-
-# ✅ CORE TASK RUNNER
 
 def run_task(client: OpenAI, task_id: str):
     env = EmailEnv()
@@ -103,7 +93,6 @@ def run_task(client: OpenAI, task_id: str):
                 EmailAction(label=action_label)
             )
 
-            # ✅ clamp each reward BEFORE logging
             safe = safe_score(reward.score)
 
             rewards.append(safe)
@@ -120,8 +109,6 @@ def run_task(client: OpenAI, task_id: str):
     log_end(task_id, success, rewards)
 
 
-# ✅ ENTRY POINT
-
 def main():
     client = OpenAI(
         base_url=API_BASE_URL,
@@ -134,4 +121,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
