@@ -82,7 +82,7 @@ def run_task(client: OpenAI, task_id: str):
 
 def main():
     # OpenAI client (required by spec)
-    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+    client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY or "dummy-key")
 
     for task_id in ["easy", "medium", "hard"]:
         run_task(client, task_id)
