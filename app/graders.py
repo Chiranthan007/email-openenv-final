@@ -3,9 +3,9 @@ def grade_email(predicted_label: str, true_label: str) -> float:
     true_label = true_label.lower().strip()
 
     if predicted_label == true_label:
-        return 0.99
+        return 0.95
 
     if predicted_label in ["spam", "not_spam"]:
-        return 0.3
+        return 0.4
 
-    return 0.01
+    return 0.05
